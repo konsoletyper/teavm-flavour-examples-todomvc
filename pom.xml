@@ -12,8 +12,8 @@
 
   <properties>
     <kotlin.version>1.1.1</kotlin.version>
-    <flavour.version>0.1.0-SNAPSHOT</flavour.version>
-    <teavm.version>0.5.0-dev-236</teavm.version>
+    <flavour.version>0.1.0-dev-17</flavour.version>
+    <teavm.version>0.5.0-dev-244</teavm.version>
   </properties>
 
   <repositories>
