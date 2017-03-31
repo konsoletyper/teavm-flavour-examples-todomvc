@@ -1,5 +1,8 @@
 package org.teavm.flavour.example.todomvc
 
+import org.teavm.flavour.routing.Path
+import org.teavm.flavour.routing.PathSet
+import org.teavm.flavour.routing.Route
 import org.teavm.flavour.routing.Routing
 import org.teavm.flavour.templates.BindTemplate
 import org.teavm.flavour.widgets.ApplicationTemplate
@@ -8,9 +11,13 @@ import org.teavm.jso.dom.html.HTMLDocument
 import java.util.function.Consumer
 
 @BindTemplate("templates/todo.html")
-class TodoView : ApplicationTemplate(), TodoRoute {
+class TodoView(private val dataSource: TodoDataSource) : ApplicationTemplate(), TodoRoute {
     private val allTodos = mutableListOf<Todo>()
     private var todoFilter: (Todo) -> Boolean = { true }
+
+    init {
+        reload()
+    }
 
     val todos: List<Todo> get() = allTodos
 
@@ -22,7 +29,7 @@ class TodoView : ApplicationTemplate(), TodoRoute {
         get
         private set
 
-    private var originalTodo: Todo? = null
+    private var titleBackup = ""
 
     var saving = false
         get
@@ -41,40 +48,48 @@ class TodoView : ApplicationTemplate(), TodoRoute {
     fun markAll(mark: Boolean) = todos.forEach { it.completed = mark }
 
     fun addTodo() {
-        allTodos += Todo().apply { title = newTodo }
+        if (newTodo.isBlank()) return
+        dataSource.save(Todo().apply { title = newTodo })
         newTodo = ""
+        reload()
     }
 
     fun editTodo(todo: Todo) {
         editedTodo = todo
-        originalTodo = Todo().apply {
-            title = todo.title
-            completed = todo.completed
-        }
+        titleBackup = todo.title
     }
 
     fun revertEdits(todo: Todo) {
-        val backup = originalTodo ?: return
-        todo.title = backup.title
-        originalTodo = null
+        if (editedTodo == null) return
+        todo.title = titleBackup
         editedTodo = null
+        reload()
     }
 
-    fun saveEdits(todo: Todo, reason: TodoSaveReason) {
-        todo.title = editedTodo!!.title.trim()
-        originalTodo = null
-        editedTodo = null
+    fun saveEdits(todo: Todo) {
+        val editedTodo = this.editedTodo ?: return
+        todo.title = editedTodo.title.trim()
+        this.editedTodo = null
+        if (editedTodo.title.isNotBlank()) {
+            dataSource.save(todo)
+        }
+        else {
+            dataSource.delete(todo)
+        }
+        reload()
     }
 
     fun removeTodo(todo: Todo) {
-        allTodos -= todo
+        dataSource.delete(todo)
+        reload()
     }
 
     fun clearCompletedTodos() {
-        allTodos.removeAll { it.completed }
+        dataSource.clearCompleted()
+        reload()
     }
 
-    override fun unfiltered() {
+    override fun all() {
         todoFilter = { true }
         filterType = TodoFilterType.ALL
     }
@@ -91,15 +106,32 @@ class TodoView : ApplicationTemplate(), TodoRoute {
 
     fun route(c: Consumer<String>) = Routing.build(TodoRoute::class.java, c)
 
+    private fun reload() {
+        allTodos.clear()
+        allTodos += dataSource.fetch()
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val view = TodoView()
+            val view = TodoView(LocalStorageTodoDataSource())
             RouteBinder()
-                .withDefault(TodoRoute::class.java) { it.unfiltered() }
+                .withDefault(TodoRoute::class.java) { it.all() }
                 .add(view)
                 .update()
             view.bind(HTMLDocument.current().body)
         }
     }
+}
+
+@PathSet
+interface TodoRoute : Route {
+    @Path("/")
+    fun all()
+
+    @Path("/active")
+    fun active()
+
+    @Path("/completed")
+    fun completed()
 }

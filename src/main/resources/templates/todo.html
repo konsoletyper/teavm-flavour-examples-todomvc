@@ -1,4 +1,3 @@
-<?import org.teavm.flavour.example.todomvc.TodoSaveReason?>
 <?import org.teavm.flavour.example.todomvc.TodoFilterType?>
 <?use todo:org.teavm.flavour.example.todomvc?>
 <section id="todoapp">
@@ -21,9 +20,9 @@
               <label event:dblclick="editTodo(todo)"><html:text value="todo.title"/></label>
               <button class="destroy" event:click="removeTodo(todo)"></button>
             </div>
-            <form event:submit="saveEdits(todo, TodoSaveReason.SUBMIT)">
+            <form event:submit="saveEdits(todo)">
               <input class="edit" html:value="todo.title" html:change="todo.title" todo:escape="revertEdits(todo)"
-                     event:blur="saveEdits(todo, TodoSaveReason.SUBMIT)" todo:focus="todo == editedTodo">
+                     event:blur="saveEdits(todo)" todo:focus="todo == editedTodo">
             </form>
           </li>
         </std:foreach>
@@ -38,7 +37,7 @@
       </span>
       <ul id="filters">
         <li>
-          <a html:link="route(it).unfiltered()" attr:class="filterType == TodoFilterType.ALL ? 'selected' : ''">All</a>
+          <a html:link="route(it).all()" attr:class="filterType == TodoFilterType.ALL ? 'selected' : ''">All</a>
         </li>
         <li>
           <a html:link="route(it).active()" attr:class="filterType == TodoFilterType.ACTIVE ? 'selected' : ''">Active</a>
