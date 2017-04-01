@@ -72,6 +72,26 @@
 
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>exec-npm-install</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <executable>npm</executable>
+              <arguments>
+                <argument>install</argument>
+              </arguments>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
@@ -102,6 +122,13 @@
           <webResources>
             <resource>
               <directory>${project.build.directory}/generated/js</directory>
+            </resource>
+            <resource>
+              <directory>${project.basedir}/node_modules/</directory>
+              <includes>
+                <include>**/base.css</include>
+                <include>**/index.css</include>
+              </includes>
             </resource>
           </webResources>
         </configuration>
