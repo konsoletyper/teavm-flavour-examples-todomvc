@@ -1,6 +1,7 @@
 package org.teavm.flavour.example.todomvc
 
 import org.teavm.flavour.json.JSON
+import org.teavm.flavour.json.JsonPersistable
 import org.teavm.flavour.json.tree.Node
 import org.teavm.jso.browser.Window
 
@@ -48,6 +49,7 @@ class LocalStorageTodoDataSource : TodoDataSource {
     }
 }
 
+@JsonPersistable
 class TodoList {
     val data = mutableListOf<Todo>()
 }

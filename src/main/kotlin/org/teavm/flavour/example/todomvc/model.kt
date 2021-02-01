@@ -1,5 +1,8 @@
 package org.teavm.flavour.example.todomvc
 
+import org.teavm.flavour.json.JsonPersistable
+
+@JsonPersistable
 class Todo {
     var title = ""
     var completed = false
