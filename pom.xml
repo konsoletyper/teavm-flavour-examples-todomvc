@@ -11,7 +11,7 @@
   <packaging>war</packaging>
 
   <properties>
-    <kotlin.version>1.4.10</kotlin.version>
+    <kotlin.version>1.6.0</kotlin.version>
     <flavour.version>0.3.0-dev-110</flavour.version>
     <teavm.version>0.7.0-dev-1169</teavm.version>
   </properties>
